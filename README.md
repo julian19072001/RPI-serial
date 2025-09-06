@@ -1,6 +1,6 @@
 # RPI-serial
 Library used for serial communication on the raspberry PI
-
+##
 ### `void setupDevice(device *com, const char *devicePort, int baudrate)`
 
 **Description:**  
@@ -11,7 +11,7 @@ Function to setup all parameters for a serial device
 - `*devicePort` — TTY port name 
 - `baudrate` — Communication baudrate
 
-
+##
 ### `void closeDevice(device *com, bool waitSend)`
 
 **Description:**  
@@ -21,7 +21,7 @@ Function to close serial port
 - `*com` — Array with device variables
 - `waitSend` — Set true if you want to halt the code until the port is closed
 
-
+##
 ### `int canReadByte(device *com)`
 
 **Description:**  
@@ -34,11 +34,11 @@ Check if a byte can be read for the serial device
 `1` if there is a byte to be read.
 `0` if there is no bytes to be read.
 
-
+##
 ### `int readByte(device *com, uint8_t* byte)`
 
 **Description:**  
-Read a single byte for the serial device
+Read a single byte form the serial device
 
 **Parameters:**  
 - `*com` — Array with device variables
@@ -49,7 +49,17 @@ Read a single byte for the serial device
 `0` if 'EOF' is reached.
 `-1` if an error occured.
 
+##
+### `void sendByte(device *com, uint8_t byte)`
 
+**Description:**  
+Send a single byte to the serial device
+
+**Parameters:**  
+- `*com` — Array with device variables
+- `byte` — Byte that needs to be send
+
+##
 ### `void flushBuffer(device *com)`
 
 **Description:**  
@@ -59,23 +69,27 @@ Completely clear serial device's buffer of data. (Needs to be done if data has b
 - `*com` — Array with device variables
 
 
+
+##
 ### `int readLine(device *com)`
 
 **Description:**  
-Read a full line from serial device
+Read a full line from serial device.
+When reading a full line it ends up in the buffer located in the device struct ending with a EOL.
 
 **Parameters:**  
 - `*com` — Array with device variables
 
 **Returns:**  
-`1` if reading a full line is succesfull (ends with EOL).
-`0` if reading a full line is not succesfull (doesn't ends with EOL).
+Returns number of bytes in read line.
+`-1` if reading a full line is not succesfull (doesn't ends with EOL).
 
-
+##
 ### `ssize_t sendLine(device *com, char* data)`
 
 **Description:**  
 Send data with a EOL at the end of it.
+Function adds new line character at the end of the data.
 
 **Parameters:**  
 - `*com` — Array with device variables

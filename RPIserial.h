@@ -19,13 +19,13 @@
 
   typedef struct {
     char buff[BUFF_SIZE];
-    int idx;
     struct pollfd port;
   }
   device;
 
   int canReadByte(device *com);
   int readByte(device *com, uint8_t* byte);
+  void sendByte(device *com, uint8_t byte);
   void flushBuffer(device *com);
 
   int readLine(device *com);

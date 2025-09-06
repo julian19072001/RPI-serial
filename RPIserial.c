@@ -1,8 +1,8 @@
 /*!
  *  \file    serialRPI.c
  *  \author  Julian Della Guardia
- *  \date    03-04-2025
- *  \version 1.1
+ *  \date    06-09-2025
+ *  \version 1.2
  *
  *  \brief   Library to use serial communication on the raspberry pi
  */
@@ -104,6 +104,16 @@ int readByte(device *com, uint8_t* byte){
     return read(com->port.fd, byte, 1);
 }
 
+/*! \brief Send single byte to outgoing buffer
+ *  
+ *  \param com location that needs to be send to
+ * 
+ *  \param byte byte that needs to be send
+ */
+void sendByte(device *com, uint8_t byte){
+    write(com->port.fd, byte, 1);
+}
+
 /*! \brief Completely clear incomming buffer from data
  *  
  *  \param com location that needs to be read from
@@ -124,18 +134,17 @@ void flushBuffer(device *com){
  */
 int readData(device *com){
     uint8_t c = 0;
+    int idx = 0;
     if(canReadByte(com)){
         int n = readByte(com, &c);
         if(n > 0){
             if(c == '\r' || c =='\n') {
-                com->buff[com->idx] = '\0';
+                com->buff[idx] = '\0';
                 return 1;
             }
-            com->buff[com->idx] = c;
-            com->idx++;
-            if(com->idx > BUFF_SIZE){
-                com->idx = 0;
-            }
+            com->buff[idx] = c;
+            idx++;
+            if(idx > BUFF_SIZE) idx = 0;
         }
     }
     return 0;
@@ -145,22 +154,23 @@ int readData(device *com){
  *  
  *  \param com location that needs to be read from
  * 
- *  \return returns 0 if it couldnt read a full line, returns 1 if a full line has been read
+ *  \return returns number of bytes read, returns -1 if it couldnt read a full line
  * 
  *  \details Clears the previous line from the buffer
  * 
  */
 int readLine(device *com){
     memset(com->buff, 0 ,BUFF_SIZE);
-    com->idx = 0;
+    int idx = 0;
 
     while(!readData(com)){
-        if(!canReadByte(com)) return 0;
+        if(!canReadByte(com)) return -1;
+        idx++;
     }
-    return 1;
+    return idx;
 } /*readLine*/
 
-/*! \brief  Initialize device and open the serial communication
+/*! \brief  Send a line of data with a new line character at the end.
  *  
  *  \param com struct with device's serial information
  *
@@ -194,7 +204,6 @@ ssize_t sendLine(device *com, char* data){
 void setupDevice(device *com, const char* devicePort, int baudrate){
     com->port.fd = openSerial(devicePort, baudrate);
     com->port.events = POLLIN;
-    com->idx = 0;
 } /*setupDevice*/
 
 /*! \brief properly close serial device and empty buffer
