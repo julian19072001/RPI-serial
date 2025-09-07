@@ -18,20 +18,17 @@
   #define BUFF_SIZE 512
 
   typedef struct {
-    char buff[BUFF_SIZE];
     struct pollfd port;
-  }
-  device;
+    const char* devicePort; 
+    int baudrate;
+  }device_t;
 
-  int canReadByte(device *com);
-  int readByte(device *com, uint8_t* byte);
-  void sendByte(device *com, uint8_t byte);
-  void flushBuffer(device *com);
+  int canReadByte(device_t *com);
+  int readByte(device_t *com, uint8_t* byte);
+  void sendByte(device_t *com, uint8_t byte);
+  void flushBuffer(device_t *com);
 
-  int readLine(device *com);
-  ssize_t sendLine(device *com, char* data);
-
-  void setupDevice(device *com, const char* devicePort, int baudrate);
-  void closeDevice(device *com, bool waitSend);
+  void setupDevice(device_t *com);
+  void closeDevice(device_t *com, bool waitSend);
 
 #endif

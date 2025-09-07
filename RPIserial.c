@@ -1,5 +1,5 @@
 /*!
- *  \file    serialRPI.c
+ *  \file    RPIserial.c
  *  \author  Julian Della Guardia
  *  \date    06-09-2025
  *  \version 1.2
@@ -7,7 +7,7 @@
  *  \brief   Library to use serial communication on the raspberry pi
  */
 
-#include "serialRPI.h"
+#include "RPIserial.h"
 
 /*! \brief checks if there is a byte to be read. 
  *  
@@ -85,7 +85,7 @@ int openSerial(const char *portName, int baud){
  * 
  *  \return returns 0 if there is no byte, 1 if there is a byte
  */
-int canReadByte(device *com){
+int canReadByte(device_t *com){
     return poll(&com->port, 1, 0);
 } /*canReadByte*/
 
@@ -99,7 +99,7 @@ int canReadByte(device *com){
  * 
  *  \details Waits for byte to be availible, call canReadByte() to prevent a busy wait
  */
-int readByte(device *com, uint8_t* byte){
+int readByte(device_t *com, uint8_t* byte){
     while(!canReadByte(com));
     return read(com->port.fd, byte, 1);
 }
@@ -110,7 +110,7 @@ int readByte(device *com, uint8_t* byte){
  * 
  *  \param byte byte that needs to be send
  */
-void sendByte(device *com, uint8_t byte){
+void sendByte(device_t *com, uint8_t byte){
     write(com->port.fd, byte, 1);
 }
 
@@ -119,78 +119,12 @@ void sendByte(device *com, uint8_t byte){
  *  \param com location that needs to be read from
  * 
  */
-void flushBuffer(device *com){
+void flushBuffer(device_t *com){
     uint8_t byte;
     while(canReadByte(com))
         read(com->port.fd, &byte, 1);
 } /*flushBuffer*/
 
-/*! \brief Read byte form incomming buffer and check if it indicates a end of line
- *  
- *  \param com location that needs to be read from
- * 
- *  \return returns 0 if it isnt a end of line, returns 1 if the end of line has been reached
- * 
- */
-int readData(device *com){
-    uint8_t c = 0;
-    int idx = 0;
-    if(canReadByte(com)){
-        int n = readByte(com, &c);
-        if(n > 0){
-            if(c == '\r' || c =='\n') {
-                com->buff[idx] = '\0';
-                return 1;
-            }
-            com->buff[idx] = c;
-            idx++;
-            if(idx > BUFF_SIZE) idx = 0;
-        }
-    }
-    return 0;
-} /*readData*/
-
-/*! \brief Reads complete line from the incomming buffer
- *  
- *  \param com location that needs to be read from
- * 
- *  \return returns number of bytes read, returns -1 if it couldnt read a full line
- * 
- *  \details Clears the previous line from the buffer
- * 
- */
-int readLine(device *com){
-    memset(com->buff, 0 ,BUFF_SIZE);
-    int idx = 0;
-
-    while(!readData(com)){
-        if(!canReadByte(com)) return -1;
-        idx++;
-    }
-    return idx;
-} /*readLine*/
-
-/*! \brief  Send a line of data with a new line character at the end.
- *  
- *  \param com struct with device's serial information
- *
- *  \param data Data to be written to device
- * 
- *  \return Returns the number of bytes send, or -1 if there is an error
- */
-ssize_t sendLine(device *com, char* data){
-    size_t dataLength = strlen(data);  // Get the length of the string
-    
-    char sendData[dataLength + 1];
-    
-    for(int i = 0; i < dataLength; i++){
-        sendData[i] = data[i];
-    }
-
-    sendData[dataLength] = '\n';
-
-    return write(com->port.fd, sendData, sizeof(sendData));
-} /*sendLine*/
 
 /*! \brief  Initialize device and open the serial communication
  *  
@@ -201,8 +135,8 @@ ssize_t sendLine(device *com, char* data){
  *  \param baudrate communication speed of the device
  * 
  */
-void setupDevice(device *com, const char* devicePort, int baudrate){
-    com->port.fd = openSerial(devicePort, baudrate);
+void setupDevice(device_t *com){
+    com->port.fd = openSerial(com->devicePort, com->baudrate);
     com->port.events = POLLIN;
 } /*setupDevice*/
 
@@ -213,7 +147,7 @@ void setupDevice(device *com, const char* devicePort, int baudrate){
 *  \param waitSend True if you want to wait until the whole buffer has been send before closing
 *
 */
-void closeDevice(device *com, bool waitSend){
+void closeDevice(device_t *com, bool waitSend){
     if(waitSend) tcdrain(com->port.fd);
     else tcflush(com->port.fd, TCIOFLUSH);
     close(com->port.fd);
