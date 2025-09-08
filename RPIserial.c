@@ -24,7 +24,7 @@ int openSerial(const char *portName, int baud){
   struct termios tty;
 
   if (serial_port < 0) {
-      printf("Error %i from open: %s\n", errno, strerror(errno));
+      fprintf(stderr, "Error %i from open: %s\n", errno, strerror(errno));
       exit(1);
   }
   
@@ -37,7 +37,7 @@ int openSerial(const char *portName, int baud){
   // must have been initialized with a call to tcgetattr() overwise behaviour
   // is undefined
   if(tcgetattr(serial_port, &tty) != 0) {
-      printf("Error %i from tcgetattr: %s\n", errno, strerror(errno));
+      fprintf(stderr, "Error %i from tcgetattr: %s\n", errno, strerror(errno));
       exit(2);
   }
   
@@ -71,7 +71,7 @@ int openSerial(const char *portName, int baud){
 
   // Save tty settings, also checking for error
   if (tcsetattr(serial_port, TCSANOW, &tty) != 0) {
-      printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
+      fprintf(stderr, "Error %i from tcsetattr: %s\n", errno, strerror(errno));
       return 1;
       exit(3);
   }
