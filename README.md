@@ -1,15 +1,13 @@
 # RPI-serial
 Library used for serial communication on the raspberry PI
 ##
-### `void setupDevice(device *com, const char *devicePort, int baudrate)`
+### `void setupDevice(device *com)`
 
 **Description:**  
 Function to setup all parameters for a serial device
 
 **Parameters:**  
-- `*com` — Array where device information should be saved 
-- `*devicePort` — TTY port name 
-- `baudrate` — Communication baudrate
+- `*com` — Array where device information should is saved 
 
 ##
 ### `void closeDevice(device *com, bool waitSend)`

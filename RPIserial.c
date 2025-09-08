@@ -65,7 +65,7 @@ int openSerial(const char *portName, int baud){
   tty.c_cc[VTIME] = 0;    // Wait for up to 1s (10 deciseconds), returning as soon as any data is received.
   tty.c_cc[VMIN] = 1;
 
-  // Set in/out baud rate to be 9600
+  // Set in/out baud rate
   cfsetispeed(&tty, baud);
   cfsetospeed(&tty, baud);
 
@@ -129,10 +129,6 @@ void flushBuffer(device_t *com){
 /*! \brief  Initialize device and open the serial communication
  *  
  *  \param com struct with device's serial information
- *
- *  \param devicePort Port which the device is connected to (tty location)
- * 
- *  \param baudrate communication speed of the device
  * 
  */
 void setupDevice(device_t *com){
