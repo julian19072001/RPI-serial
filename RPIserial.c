@@ -111,7 +111,7 @@ int readByte(device_t *com, uint8_t* byte){
  *  \param byte byte that needs to be send
  */
 void sendByte(device_t *com, uint8_t byte){
-    write(com->port.fd, byte, 1);
+    write(com->port.fd, &byte, 1);
 }
 
 /*! \brief Completely clear incomming buffer from data
