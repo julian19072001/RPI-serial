@@ -9,7 +9,7 @@
 
 #include "RPIserial.h"
 
-/*! \brief checks if there is a byte to be read. 
+/*! \brief Opens serial port
  *  
  *  \param portName Port which the device is connected to (tty location)
  * 
